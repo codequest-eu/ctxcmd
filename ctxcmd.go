@@ -39,9 +39,9 @@ func (t *TerminationStatus) Error() string {
 	)
 }
 
-// Run starts the underlying exec.Cmd and waits until either the command
-// finishes or the underlying Context is canceled. In the latter case the chosen
-// OS signal is sent to the subprocess.
+// RunWithSignal starts the underlying exec.Cmd and waits until either the
+// command finishes or the underlying Context is canceled. In the latter case
+// the chosen OS signal is sent to the subprocess.
 func (c *Command) RunWithSignal(onCancel os.Signal) error {
 	if err := c.cmd.Start(); err != nil {
 		return err

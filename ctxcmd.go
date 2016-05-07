@@ -29,12 +29,16 @@ type TerminationStatus struct {
 	// KillStatus carries the status of killing the underlying process. It
 	// may be nil if killing the process succeeded.
 	KillStatus error
+
+	// Signal used to kill the process/
+	Signal os.Signal
 }
 
 func (t *TerminationStatus) Error() string {
 	return fmt.Sprintf(
-		"Context terminated with %v, process killed with %v",
+		"Context terminated with %v, process killed with %s: %v",
 		t.ContextStatus,
+		t.Signal,
 		t.KillStatus,
 	)
 }
@@ -54,7 +58,11 @@ func (c *Command) RunWithSignal(onCancel os.Signal) error {
 	case err := <-commandFinished:
 		return err
 	}
-	return &TerminationStatus{c.ctx.Err(), c.cmd.Process.Signal(onCancel)}
+	return &TerminationStatus{
+		ContextStatus: c.ctx.Err(),
+		KillStatus:    c.cmd.Process.Signal(onCancel),
+		Signal:        onCancel,
+	}
 }
 
 // Run starts the underlying exec.Cmd and waits until either the command
